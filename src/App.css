@@ -28,6 +28,10 @@
   color: #61dafb;
 }
 
+body {
+  padding-top: 56px; /* Height of the navbar */
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

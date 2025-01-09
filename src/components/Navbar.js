@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Navbar() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top mb-5">
   <div className="container-fluid">
     <a className="navbar-brand" href="/">
     <img src="https://w7.pngwing.com/pngs/507/691/png-transparent-nakshatra-hindu-astrology-horoscope-astrological-sign-astrology-decor-aries-ascendant-thumbnail.png" alt="" width="30" height="30" className="d-inline-block align-text-top me-2"></img>
@@ -25,7 +25,6 @@ export default function Navbar() {
         <button className="btn btn-outline-success" type="submit">Search</button>
       </form>
     </div>
-    <div></div>
   </div>
 </nav>
   )
