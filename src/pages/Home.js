@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { submitUserData } from "../apis/HomeApi";
 
 export default function Home() {
@@ -7,12 +9,10 @@ export default function Home() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [city, setCity] = useState("");
-  const [year, setYear] = useState("");
-  const [month, setMonth] = useState("");
-  const [date, setDate] = useState("");
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("");
-  const [seconds, setSeconds] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null); // Use Date object
+  const [hours, setHours] = useState("0");
+  const [minutes, setMinutes] = useState("0");
+  const [seconds, setSeconds] = useState("0");
   const [timezone, setTimezone] = useState("");
   const [observation_point, setObservation_point] = useState("topocentric");
   const [ayanamsha, setAyanamsha] = useState("lahiri");
@@ -46,9 +46,7 @@ export default function Home() {
       !latitude ||
       !longitude ||
       !city ||
-      !year ||
-      !month ||
-      !date ||
+      !selectedDate ||
       !hours ||
       !minutes ||
       !seconds ||
@@ -61,9 +59,9 @@ export default function Home() {
     }
 
     const payload = {
-      year: parseInt(year, 10),
-      month: parseInt(month, 10),
-      date: parseInt(date, 10),
+      year: selectedDate.getFullYear(),
+      month: selectedDate.getMonth() + 1, // Months are 0-indexed
+      date: selectedDate.getDate(),
       hours: parseInt(hours, 10),
       minutes: parseInt(minutes, 10),
       seconds: parseInt(seconds, 10),
@@ -91,23 +89,14 @@ export default function Home() {
     }
   };
 
-  const getOptions = (start, end) => {
-    let options = [];
+  // Helper function to generate options for a given range
+  const generateOptions = (start, end) => {
+    const options = [];
     for (let i = start; i <= end; i++) {
-      options.push(i);
+      options.push(i < 10 ? `0${i}` : i.toString());
     }
     return options;
   };
-
-  const getDaysInMonth = (month, year) => {
-    return new Date(year, month, 0).getDate();
-  };
-
-  const years = getOptions(1900, new Date().getFullYear());
-  const months = getOptions(1, 12);
-  const hoursOptions = getOptions(0, 23);
-  const minutesAndSeconds = getOptions(0, 59);
-  const days = month && year ? getOptions(1, getDaysInMonth(month, year)) : [];
 
   return (
     <div className="container my-5 p-4 w-50 shadow rounded bg-light">
@@ -127,6 +116,7 @@ export default function Home() {
           />
         </div>
 
+        {/* City Selector */}
         <div className="mb-3">
           <label htmlFor="city" className="form-label">
             City:
@@ -146,7 +136,7 @@ export default function Home() {
           </select>
         </div>
 
-        {/* Latitude Field (Read-Only) */}
+        {/* Latitude (Read-Only) */}
         <div className="mb-3">
           <label htmlFor="latitude" className="form-label">
             Latitude:
@@ -160,7 +150,7 @@ export default function Home() {
           />
         </div>
 
-        {/* Longitude Field (Read-Only) */}
+        {/* Longitude (Read-Only) */}
         <div className="mb-3">
           <label htmlFor="longitude" className="form-label">
             Longitude:
@@ -188,119 +178,76 @@ export default function Home() {
           />
         </div>
 
-        {/* Date and Time Fields */}
+        {/* Date Picker */}
         <div className="mb-3">
-          <label htmlFor="year" className="form-label">
-            Year:
+          <label htmlFor="date-picker" className="form-label">
+            Select Date:
           </label>
-          <select
-            id="year"
-            className="form-select"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-          >
-            <option value="">Select Year</option>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+          <DatePicker
+            id="date-picker"
+            selected={selectedDate}
+            onChange={(date) => setSelectedDate(date)}
+            dateFormat="yyyy-MM-dd"
+            className="form-control"
+            placeholderText="Select a date"
+          />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="month" className="form-label">
-            Month:
-          </label>
-          <select
-            id="month"
-            className="form-select"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-          >
-            <option value="">Select Month</option>
-            {months.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Time Selectors */}
+        <div className="mb-3 d-flex justify-content-between">
+          <div className="w-30">
+            <label htmlFor="hours" className="form-label">
+              Hours:
+            </label>
+            <select
+              id="hours"
+              className="form-select"
+              value={hours}
+              onChange={(e) => setHours(e.target.value)}
+            >
+              {generateOptions(0, 23).map((hour) => (
+                <option key={hour} value={hour}>
+                  {hour}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="mb-3">
-          <label htmlFor="date" className="form-label">
-            Date:
-          </label>
-          <select
-            id="date"
-            className="form-select"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          >
-            <option value="">Select Date</option>
-            {days.map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className="w-30">
+            <label htmlFor="minutes" className="form-label">
+              Minutes:
+            </label>
+            <select
+              id="minutes"
+              className="form-select"
+              value={minutes}
+              onChange={(e) => setMinutes(e.target.value)}
+            >
+              {generateOptions(0, 59).map((minute) => (
+                <option key={minute} value={minute}>
+                  {minute}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="mb-3">
-          <label htmlFor="hours" className="form-label">
-            Hours:
-          </label>
-          <select
-            id="hours"
-            className="form-select"
-            value={hours}
-            onChange={(e) => setHours(e.target.value)}
-          >
-            <option value="">Select Hours</option>
-            {hoursOptions.map((h) => (
-              <option key={h} value={h}>
-                {h}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="minutes" className="form-label">
-            Minutes:
-          </label>
-          <select
-            id="minutes"
-            className="form-select"
-            value={minutes}
-            onChange={(e) => setMinutes(e.target.value)}
-          >
-            <option value="">Select Minutes</option>
-            {minutesAndSeconds.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="mb-3">
-          <label htmlFor="seconds" className="form-label">
-            Seconds:
-          </label>
-          <select
-            id="seconds"
-            className="form-select"
-            value={seconds}
-            onChange={(e) => setSeconds(e.target.value)}
-          >
-            <option value="">Select Seconds</option>
-            {minutesAndSeconds.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          <div className="w-30">
+            <label htmlFor="seconds" className="form-label">
+              Seconds:
+            </label>
+            <select
+              id="seconds"
+              className="form-select"
+              value={seconds}
+              onChange={(e) => setSeconds(e.target.value)}
+            >
+              {generateOptions(0, 59).map((second) => (
+                <option key={second} value={second}>
+                  {second}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <button
